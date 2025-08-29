@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="imgs">
+    <file>icons/rotate.png</file>
+    <file>icons/brightness.png</file>
+    <file>icons/files.png</file>
+    <file>icons/pause.png</file>
+    <file>icons/play.png</file>
+    <file>icons/power_off.png</file>
+    <file>icons/save.png</file>
+    <file>icons/veins.png</file>
+    <file>icons/bin.png</file>
+  </qresource>
+</RCC>
