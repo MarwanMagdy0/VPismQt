@@ -11,6 +11,7 @@ class VideoThread(QThread):
         super().__init__()
         self.running = True
         self.camera = CameraWrapper(source)
+    
 
     def run(self):
         while self.running:
@@ -21,6 +22,9 @@ class VideoThread(QThread):
                 qt_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_BGR888)
                 qt_img = qt_img.scaled(640, 480, Qt.KeepAspectRatio)
                 self.frame_signal.emit(qt_img)
+
+    def switch_mode(self):
+        self.camera.switch_mode()
 
     def stop(self):
         self.running = False

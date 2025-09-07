@@ -66,6 +66,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Rotate button → rotate image
         self.rotate_button.clicked.connect(self.rotate_image)
 
+        self.viens_button.clicked.connect(self.video_thread.switch_mode)
+
     def toggle_play_pause(self):
         """Toggle play/pause state of video."""
         paused = self.play_pause_button.property("paused")
