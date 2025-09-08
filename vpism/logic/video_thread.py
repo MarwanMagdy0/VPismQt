@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QImage
 import cv2
-from vpism.logic.camera_wrapper import CameraWrapper, ImageWrapper
+from vpism.logic.camera_wrapper import CameraWrapper, ImageWrapper, Picamera2Wrapper
 import numpy as np
 
 class VideoThread(QThread):
@@ -10,7 +10,7 @@ class VideoThread(QThread):
     def __init__(self, source=0):
         super().__init__()
         self.running = True
-        self.camera = CameraWrapper(source)
+        self.camera = Picamera2Wrapper(source)
     
 
     def run(self):

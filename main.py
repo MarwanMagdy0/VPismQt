@@ -11,6 +11,7 @@ import PyQt5
 from vpism.logic.video_thread import VideoThread
 from vpism.gui.brightness_dialog import BrightnessDialog
 from vpism.gui.show_files_dialog import ShowFilesDialog
+from vpism.logic.led_api import set_brightness, cleanup
 
 
 # Fix Qt plugin path (for PyQt5 on some platforms)

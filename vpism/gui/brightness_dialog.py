@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QSlider
 from PyQt5.QtCore import Qt
+from vpism.logic.led_api import set_brightness
 
 class BrightnessDialog(QDialog):
     value = 50  # default brightness value
@@ -65,3 +66,4 @@ class BrightnessDialog(QDialog):
     def update_label(self, value):
         self.value_label.setText(str(value))
         BrightnessDialog.value = value
+        set_brightness(value)
