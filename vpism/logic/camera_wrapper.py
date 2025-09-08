@@ -114,6 +114,7 @@ class Picamera2Wrapper(ModeMixin, CameraInterface):
     def read(self):
         try:
             frame = self.camera.capture_array()
+            frame = cv2.resize(frame, (640, 480))
             return True, self._apply_mode(frame)
         except Exception as e:
             print(f"Error capturing frame: {e}")

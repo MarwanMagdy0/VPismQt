@@ -23,24 +23,24 @@ class BrightnessDialog(QDialog):
         self.slider.setRange(0, 100)
         self.slider.setValue(BrightnessDialog.value)
         # self.slider.setInvertedAppearance(True)   # flip so it starts from bottom
-        self.slider.setFixedSize(40, 300)         # thinner and taller
+        self.slider.setFixedSize(120, 300)         # thinner and taller
         self.slider.setStyleSheet("""
             QSlider::groove:vertical {
                 border: 1px solid #999999;
-                width: 6px;                      /* thinner groove */
+                width: 15px;                      /* thinner groove */
                 background: #cccccc;
                 border-radius: 3px;
             }
             QSlider::add-page:vertical {
                 background: #3b99fc;
                 border: 1px solid #777;
-                width: 6px;
+                width: 15px;
                 border-radius: 3px;
             }
             QSlider::sub-page:vertical {
                 background: #eeeeee;
                 border: 1px solid #777;
-                width: 6px;
+                width: 15px;
                 border-radius: 3px;
             }
             QSlider::handle:vertical {
