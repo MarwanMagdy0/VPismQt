@@ -23,33 +23,34 @@ class BrightnessDialog(QDialog):
         self.slider.setRange(0, 100)
         self.slider.setValue(BrightnessDialog.value)
         # self.slider.setInvertedAppearance(True)   # flip so it starts from bottom
-        self.slider.setFixedSize(120, 300)         # thinner and taller
+        self.slider.setFixedSize(80, 300)   # wider but same height
+
         self.slider.setStyleSheet("""
             QSlider::groove:vertical {
                 border: 1px solid #999999;
-                width: 15px;                      /* thinner groove */
+                width: 20px;                      /* thicker groove */
                 background: #cccccc;
-                border-radius: 3px;
+                border-radius: 8px;
             }
             QSlider::add-page:vertical {
                 background: #3b99fc;
                 border: 1px solid #777;
-                width: 15px;
-                border-radius: 3px;
+                width: 20px;
+                border-radius: 8px;
             }
             QSlider::sub-page:vertical {
                 background: #eeeeee;
                 border: 1px solid #777;
-                width: 15px;
-                border-radius: 3px;
+                width: 20px;
+                border-radius: 8px;
             }
             QSlider::handle:vertical {
                 background: #ffffff;
                 border: 2px solid #3b99fc;
-                width: 20px;                     /* smaller handle */
-                height: 20px;
-                margin: -2px -7px;               /* keep it centered on groove */
-                border-radius: 10px;
+                width: 20px;                      /* bigger handle */
+                height: 40px;
+                margin: -2px -20px;               /* keep it centered on thicker groove */
+                border-radius: 20px;
             }
             QSlider::handle:vertical:hover {
                 background: #e6f0ff;

@@ -11,16 +11,27 @@ class VideoThread(QThread):
         super().__init__()
         self.running = True
         self.camera = Picamera2Wrapper(source)
-    
 
     def run(self):
         while self.running:
             ret, frame = self.camera.read()
             if ret and isinstance(frame, np.ndarray):
-                h, w, ch = frame.shape
-                bytes_per_line = ch * w
-                qt_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_BGR888)
-                qt_img = qt_img.scaled(640, 480, Qt.KeepAspectRatio)
+                if len(frame.shape) == 2:
+                    h, w = frame.shape
+                    bytes_per_line = frame.strides[0]
+                    qt_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_Grayscale8)
+                else:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                    if not frame.flags['C_CONTIGUOUS']:
+                        frame = np.ascontiguousarray(frame)
+
+                    h, w, ch = frame.shape
+                    bytes_per_line = frame.strides[0]
+                    qt_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+
+                qt_img = qt_img.scaled(640, 480, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
                 self.frame_signal.emit(qt_img)
 
     def switch_mode(self):

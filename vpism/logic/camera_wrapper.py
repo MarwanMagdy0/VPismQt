@@ -2,10 +2,12 @@ import cv2
 import time
 from abc import ABC, abstractmethod
 import numpy as np
+
 try:
     from picamera2 import Picamera2
 except ImportError:
     print("Picamera2 library not found. Picamera2Wrapper will not work.")
+
 
 # ---------------------------
 # Abstract Interface
@@ -145,3 +147,44 @@ class ImageWrapper(ModeMixin, CameraInterface):
     def release(self):
         self.image = None
         self.loaded = False
+
+
+# ---------------------------
+# Standalone PiCamera2 + Multi-CLAHE Preview
+# ---------------------------
+if __name__ == "__main__":
+    picam2 = Picamera2()
+    config = picam2.create_preview_configuration(main={"format": "RGB888", "size": (640, 480)})
+    picam2.configure(config)
+    picam2.start()
+
+    cv2.namedWindow("Multi-CLAHE Preview", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Multi-CLAHE Preview", 1024, 768)
+
+    # دالة لتطبيق CLAHE أكثر من مرة
+    def apply_multi_clahe(image, times=5):
+        clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
+        result = image.copy()
+        for _ in range(times):
+            result = clahe.apply(result)
+        return result
+
+    try:
+        while True:
+            frame = picam2.capture_array()
+
+            # تحويل إلى تدرج الرمادي
+            gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+
+            # تطبيق CLAHE عدة مرات
+            enhanced = apply_multi_clahe(gray, times=5)
+
+            # عرض النتيجة فقط (رمادية محسنة)
+            cv2.imshow("Multi-CLAHE Preview", enhanced)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+    finally:
+        picam2.close()
+        cv2.destroyAllWindows()
