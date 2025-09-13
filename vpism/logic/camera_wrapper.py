@@ -1,46 +1,45 @@
+import sys
 import cv2
 import time
-from abc import ABC, abstractmethod
 import numpy as np
+from abc import ABC, abstractmethod
+from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtCore import QTimer
 
 try:
     from picamera2 import Picamera2
 except ImportError:
+    Picamera2 = None
     print("Picamera2 library not found. Picamera2Wrapper will not work.")
 
 
-# ---------------------------
-# Abstract Interface
-# ---------------------------
+# =========================
+# Abstract Camera Interface
+# =========================
 class CameraInterface(ABC):
     @abstractmethod
     def read(self):
-        """
-        Capture or read one frame.
-        Returns (ret, frame) like cv2.VideoCapture.read().
-        """
+        """Return (ret, frame) just like cv2.VideoCapture.read()"""
         pass
 
     @abstractmethod
     def release(self):
-        """Release the resource if needed."""
         pass
 
     @abstractmethod
     def switch_mode(self):
-        """Cycle to the next mode: normal -> inverted -> vein -> normal -> ..."""
         pass
 
     @property
     @abstractmethod
     def current_mode(self):
-        """Return current mode name."""
         pass
 
 
-# ---------------------------
-# Base class with mode logic
-# ---------------------------
+# =========================
+# Mode Mixin
+# =========================
 class ModeMixin:
     modes = ["normal", "inverted", "vein"]
 
@@ -49,43 +48,61 @@ class ModeMixin:
         self.clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
 
     def switch_mode(self):
-        """Cycle to the next mode automatically"""
         self.mode_index = (self.mode_index + 1) % len(self.modes)
 
     @property
     def current_mode(self):
         return self.modes[self.mode_index]
 
-    def _apply_vein_detection(self, frame, clahe_iterations=5, threshold_value=50):
+    def _apply_vein_detection(self, frame, clahe_iterations=1):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         enhanced = gray.copy()
         for _ in range(clahe_iterations):
             enhanced = self.clahe.apply(enhanced)
+        return cv2.cvtColor(enhanced, cv2.COLOR_GRAY2BGR)
 
-        _, mask = cv2.threshold(enhanced, threshold_value, 255, cv2.THRESH_BINARY_INV)
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
+    def _apply_mode(self, frame, roi_ratio=0.5, alpha=0.7):
+        """
+        roi_ratio: how big the ROI is compared to the frame (0.5 = half)
+        alpha: transparency of background (1 = solid white, 0 = fully original)
+        """
+        h, w = frame.shape[:2]
 
-        result = frame.copy()
-        result[mask > 0] = [0, 255, 0]
-        return result
+        # ROI square based on ratio
+        roi_size = int(min(h, w) * roi_ratio)
+        x1 = (w - roi_size) // 2
+        y1 = (h - roi_size) // 2
+        x2 = x1 + roi_size
+        y2 = y1 + roi_size
 
-    def _apply_mode(self, frame):
-        """Apply the current mode to the frame"""
+        # Make white overlay
+        white_bg = np.ones_like(frame, dtype=np.uint8) * 255
+
+        # Blend frame with white to get semi-transparent effect
+        output = cv2.addWeighted(frame, 1 - alpha, white_bg, alpha, 0)
+
+        # Extract ROI from original
+        roi = frame[y1:y2, x1:x2]
+
+        # Apply current mode only to ROI
         mode = self.current_mode
         if mode == "normal":
-            return frame
+            processed_roi = roi
         elif mode == "inverted":
-            return cv2.bitwise_not(frame)
+            processed_roi = cv2.bitwise_not(roi)
         elif mode == "vein":
-            return self._apply_vein_detection(frame)
+            processed_roi = self._apply_vein_detection(roi)
         else:
-            return frame
+            processed_roi = roi
+
+        # Paste back ROI into blended output
+        output[y1:y2, x1:x2] = processed_roi
+        return output
 
 
-# ---------------------------
-# OpenCV Video/Camera Wrapper
-# ---------------------------
+# =========================
+# OpenCV Camera Wrapper
+# =========================
 class CameraWrapper(ModeMixin, CameraInterface):
     def __init__(self, source=0, mode="normal"):
         ModeMixin.__init__(self, mode)
@@ -104,13 +121,19 @@ class CameraWrapper(ModeMixin, CameraInterface):
             self.cap.release()
 
 
-# ---------------------------
-# Picamera2 Wrapper
-# ---------------------------
+# =========================
+# Raspberry Pi Picamera2 Wrapper
+# =========================
 class Picamera2Wrapper(ModeMixin, CameraInterface):
-    def __init__(self, src='', mode="normal"):
+    def __init__(self, src=0, mode="normal"):
+        if Picamera2 is None:
+            raise RuntimeError("Picamera2 library not available")
         ModeMixin.__init__(self, mode)
         self.camera = Picamera2()
+        config = self.camera.create_preview_configuration(
+            main={"format": "RGB888", "size": (640, 480)}
+        )
+        self.camera.configure(config)
         self.camera.start()
 
     def read(self):
@@ -129,9 +152,9 @@ class Picamera2Wrapper(ModeMixin, CameraInterface):
             print(f"Error releasing camera: {e}")
 
 
-# ---------------------------
-# Image File Wrapper
-# ---------------------------
+# =========================
+# Image Wrapper (Static Image)
+# =========================
 class ImageWrapper(ModeMixin, CameraInterface):
     def __init__(self, src, mode="normal"):
         ModeMixin.__init__(self, mode)
@@ -147,44 +170,3 @@ class ImageWrapper(ModeMixin, CameraInterface):
     def release(self):
         self.image = None
         self.loaded = False
-
-
-# ---------------------------
-# Standalone PiCamera2 + Multi-CLAHE Preview
-# ---------------------------
-if __name__ == "__main__":
-    picam2 = Picamera2()
-    config = picam2.create_preview_configuration(main={"format": "RGB888", "size": (640, 480)})
-    picam2.configure(config)
-    picam2.start()
-
-    cv2.namedWindow("Multi-CLAHE Preview", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Multi-CLAHE Preview", 1024, 768)
-
-    # دالة لتطبيق CLAHE أكثر من مرة
-    def apply_multi_clahe(image, times=5):
-        clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
-        result = image.copy()
-        for _ in range(times):
-            result = clahe.apply(result)
-        return result
-
-    try:
-        while True:
-            frame = picam2.capture_array()
-
-            # تحويل إلى تدرج الرمادي
-            gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-
-            # تطبيق CLAHE عدة مرات
-            enhanced = apply_multi_clahe(gray, times=5)
-
-            # عرض النتيجة فقط (رمادية محسنة)
-            cv2.imshow("Multi-CLAHE Preview", enhanced)
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-    finally:
-        picam2.close()
-        cv2.destroyAllWindows()

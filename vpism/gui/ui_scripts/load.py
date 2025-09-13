@@ -186,7 +186,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label_2.setText(_translate("MainWindow", "Product"))
+        self.label_2.setText(_translate("MainWindow", "veins detection"))
         self.scale_button.setText(_translate("MainWindow", "x1"))
 from . import res_rc
 
