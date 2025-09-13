@@ -33,7 +33,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        # self.setFixedSize(800, 480)
+        self.setFixedSize(800, 480)
         self.rotation_angle = 0
         # Camera wrapper thread
         self.video_thread = VideoThread(source=0)
