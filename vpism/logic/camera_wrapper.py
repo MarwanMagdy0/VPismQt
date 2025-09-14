@@ -97,7 +97,7 @@ class ModeMixin:
 
         # Paste back ROI into blended output
         output[y1:y2, x1:x2] = processed_roi
-        return output
+        return cv2.resize(output, (640, 480))
 
 
 # =========================
