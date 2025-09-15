@@ -97,7 +97,8 @@ class ModeMixin:
 
         # Paste back ROI into blended output
         output[y1:y2, x1:x2] = processed_roi
-        return cv2.resize(output, (640, 480))
+        output = output[50:600,:,:] #TODO: Edit Values Here
+        return output
 
 
 # =========================
@@ -139,7 +140,6 @@ class Picamera2Wrapper(ModeMixin, CameraInterface):
     def read(self):
         try:
             frame = self.camera.capture_array()
-            frame = cv2.resize(frame, (640, 480))
             return True, self._apply_mode(frame)
         except Exception as e:
             print(f"Error capturing frame: {e}")

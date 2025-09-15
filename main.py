@@ -117,7 +117,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Scale cropped region back to label size
         scaled = cropped.scaled(
             self.image_frame.size(),
-            Qt.KeepAspectRatioByExpanding,
+            Qt.KeepAspectRatio,
             Qt.SmoothTransformation
         )
         self.image_frame.setPixmap(scaled)
