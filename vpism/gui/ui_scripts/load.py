@@ -63,6 +63,7 @@ class Ui_MainWindow(object):
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
+        self.image_frame.setStyleSheet("background-color: gray;")
         sizePolicy.setHeightForWidth(self.image_frame.sizePolicy().hasHeightForWidth())
         self.image_frame.setSizePolicy(sizePolicy)
         self.image_frame.setText("")
