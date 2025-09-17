@@ -97,7 +97,6 @@ class ModeMixin:
 
         # Paste back ROI into blended output
         output[y1:y2, x1:x2] = processed_roi
-        output = output[50:600,:,:] #TODO: Edit Values Here
         return output
 
 
