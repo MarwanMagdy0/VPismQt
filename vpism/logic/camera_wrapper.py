@@ -61,7 +61,7 @@ class ModeMixin:
             enhanced = self.clahe.apply(enhanced)
         return cv2.cvtColor(enhanced, cv2.COLOR_GRAY2BGR)
 
-    def _apply_mode(self, frame, roi_ratio=0.5, alpha=0.7):
+    def _apply_mode(self, frame, roi_ratio=0.8, alpha=0.7):
         """
         roi_ratio: how big the ROI is compared to the frame (0.5 = half)
         alpha: transparency of background (1 = solid white, 0 = fully original)
