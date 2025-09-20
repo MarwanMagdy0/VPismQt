@@ -54,7 +54,7 @@ class ModeMixin:
     def current_mode(self):
         return self.modes[self.mode_index]
 
-    def _apply_vein_detection(self, frame, clahe_iterations=1):
+    def _apply_vein_detection(self, frame, clahe_iterations=5):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         enhanced = gray.copy()
         for _ in range(clahe_iterations):
