@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QSlider, QPushButton
 from PyQt5.QtCore import Qt
 from vpism.logic.led_api import set_brightness
+from vpism.logic.buzzer_api import beep, buzzer_cleanup
 
 
 class BrightnessDialog(QDialog):
@@ -96,6 +97,10 @@ class BrightnessDialog(QDialog):
 
         # Smaller window
         self.resize(100, 300)
+
+        # Connect buttons to beep
+        self.plus_btn.clicked.connect(beep)
+        self.minus_btn.clicked.connect(beep)
 
     def showEvent(self, event):
         """Ensure focus when shown"""

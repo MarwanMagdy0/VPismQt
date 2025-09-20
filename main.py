@@ -11,8 +11,7 @@ import PyQt5
 from vpism.logic.video_thread import VideoThread
 from vpism.gui.brightness_dialog import BrightnessDialog
 from vpism.gui.show_files_dialog import ShowFilesDialog
-from vpism.logic.led_api import set_brightness, cleanup
-
+from vpism.logic.buzzer_api import beep
 
 # Fix Qt plugin path (for PyQt5 on some platforms)
 os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = os.fspath(
@@ -68,6 +67,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.rotate_button.clicked.connect(self.rotate_image)
 
         self.viens_button.clicked.connect(self.video_thread.switch_mode)
+        self.init_buzzer_signals()
+
+    def init_buzzer_signals(self):
+        """Connect signals to make buzzer beep on button clicks."""
+        self.close_button.clicked.connect(lambda: beep(1000, 0.1))
+        self.brightness_button.clicked.connect(lambda: beep(800, 0.1))
+        self.scale_button.clicked.connect(lambda: beep(600, 0.1))
+        self.save_showfiles_button.clicked.connect(lambda: beep(400, 0.1))
+        self.play_pause_button.clicked.connect(lambda: beep(1200, 0.1))
+        self.rotate_button.clicked.connect(lambda: beep(500, 0.1))
+        self.viens_button.clicked.connect(lambda: beep(700, 0.1))
 
     def toggle_play_pause(self):
         """Toggle play/pause state of video."""
