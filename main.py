@@ -46,6 +46,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Close button → exit program
         self.close_button.clicked.connect(self.close)
+        self.close_button.clicked.connect(lambda:os.system("sudo shutdown -h now"))
 
         # Brightness dialog
         self.brightness_dialog = None

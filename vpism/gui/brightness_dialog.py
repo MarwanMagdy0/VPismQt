@@ -10,14 +10,13 @@ class BrightnessDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.setAttribute(Qt.WA_TranslucentBackground, False)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setFocusPolicy(Qt.StrongFocus)
         self.setModal(False)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(8)
-
         # Top button (+10)
         self.plus_btn = QPushButton("+", self)
         self.plus_btn.setFixedSize(40, 30)
@@ -38,7 +37,7 @@ class BrightnessDialog(QDialog):
         # Value label (white)
         self.value_label = QLabel(f"{BrightnessDialog.value}", self)
         self.value_label.setAlignment(Qt.AlignCenter)
-        self.value_label.setStyleSheet("font-size: 14px; font-weight: bold; color: white;")
+        self.value_label.setStyleSheet("font-size: 16px; font-weight: bold; color: black; background: transparent;")
         layout.addWidget(self.value_label)
 
         # Slider
@@ -48,6 +47,9 @@ class BrightnessDialog(QDialog):
         self.slider.setFixedSize(60, 180)
         
         self.slider.setStyleSheet("""
+                                  QSlider {
+        background: transparent;
+    }
             QSlider::groove:vertical {
                 background: #3b99fc;   /* previously filled color → now empty */
                 border-radius: 5px;

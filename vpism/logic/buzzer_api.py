@@ -7,8 +7,8 @@ except ImportError:
 
 if _rpi:
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(14, GPIO.OUT)
-    buzzer = GPIO.PWM(14, 1000)  # default frequency = 1000 Hz
+    GPIO.setup(23, GPIO.OUT)
+    buzzer = GPIO.PWM(23, 1000)  # default frequency = 1000 Hz
     buzzer_started = False
 else:
     buzzer = None
