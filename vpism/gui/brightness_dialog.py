@@ -101,8 +101,8 @@ class BrightnessDialog(QDialog):
         self.resize(100, 300)
 
         # Connect buttons to beep
-        self.plus_btn.clicked.connect(beep)
-        self.minus_btn.clicked.connect(beep)
+        # self.plus_btn.clicked.connect(beep)
+        # self.minus_btn.clicked.connect(beep)
 
     def showEvent(self, event):
         """Ensure focus when shown"""
