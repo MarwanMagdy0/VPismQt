@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QSlider, QPushButton
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from vpism.logic.led_api import set_brightness
 from vpism.logic.buzzer_api import beep, buzzer_cleanup
 
@@ -17,6 +17,7 @@ class BrightnessDialog(QDialog):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(8)
+
         # Top button (+10)
         self.plus_btn = QPushButton("+", self)
         self.plus_btn.setFixedSize(40, 30)
@@ -34,7 +35,7 @@ class BrightnessDialog(QDialog):
         self.plus_btn.clicked.connect(lambda: self.adjust_value(10))
         layout.addWidget(self.plus_btn, alignment=Qt.AlignCenter)
 
-        # Value label (white)
+        # Value label
         self.value_label = QLabel(f"{BrightnessDialog.value}", self)
         self.value_label.setAlignment(Qt.AlignCenter)
         self.value_label.setStyleSheet("font-size: 16px; font-weight: bold; color: black; background: transparent;")
@@ -45,23 +46,22 @@ class BrightnessDialog(QDialog):
         self.slider.setRange(0, 100)
         self.slider.setValue(BrightnessDialog.value)
         self.slider.setFixedSize(60, 180)
-        
         self.slider.setStyleSheet("""
-                                  QSlider {
-        background: transparent;
-    }
+            QSlider {
+                background: transparent;
+            }
             QSlider::groove:vertical {
-                background: #3b99fc;   /* previously filled color → now empty */
+                background: #3b99fc;
                 border-radius: 5px;
                 width: 6px;
                 margin: 0px;
             }
             QSlider::sub-page:vertical {
-                background: #e0e0e0;   /* previously empty → now filled */
+                background: #e0e0e0;
                 border-radius: 5px;
             }
             QSlider::add-page:vertical {
-                background: #3b99fc;   /* keep consistent */
+                background: #3b99fc;
                 border-radius: 5px;
             }
             QSlider::handle:vertical {
@@ -97,32 +97,27 @@ class BrightnessDialog(QDialog):
         self.minus_btn.clicked.connect(lambda: self.adjust_value(-10))
         layout.addWidget(self.minus_btn, alignment=Qt.AlignCenter)
 
-        # Smaller window
+        # Window size
         self.resize(100, 300)
 
-        # Connect buttons to beep
+        # Optional: beep on button press
         # self.plus_btn.clicked.connect(beep)
         # self.minus_btn.clicked.connect(beep)
 
     def showEvent(self, event):
-        """Ensure focus when shown"""
         self.activateWindow()
         self.raise_()
         self.setFocus()
         super().showEvent(event)
 
-    def focusOutEvent(self, event):
-        """Prevent closing when focus is lost"""
-        event.ignore()
-        self.setFocus()
-        super().focusOutEvent(event)
-
     def update_label(self, value):
+        """Update display and send brightness."""
         self.value_label.setText(str(value))
         BrightnessDialog.value = value
-        set_brightness(value)
+        # Debounced hardware call
+        QTimer.singleShot(50, lambda: set_brightness(value))
 
     def adjust_value(self, delta):
-        """Increase/decrease slider by delta (±10)"""
+        """Increase or decrease brightness by delta."""
         new_val = max(0, min(100, self.slider.value() + delta))
         self.slider.setValue(new_val)
